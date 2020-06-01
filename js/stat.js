@@ -1,5 +1,15 @@
 'use strict';
 
+function getMaxValue(times) {
+  var maxTime = times[0];
+
+  for (var i = 1; i < times.length; i++) {
+    if (times[i] > maxTime) {
+      maxTime = times[i];
+    }
+  }
+  return maxTime;
+}
 window.renderStatistics = function (ctx, names, times) {
   var drawBackground = function (x, y, width, height) {
     var offset = 15;
@@ -30,30 +40,24 @@ window.renderStatistics = function (ctx, names, times) {
   var columnWidth = 40;
   var columnIndent = 90;
 
-  var maxTime = times[0];
-  for (var i = 1; i < times.length; i++) {
-    if (times[i] > maxTime) {
-      maxTime = times[i];
-    }
-  }
 
-  var step = columnMaxHeight / maxTime;
+  var step = columnMaxHeight / getMaxValue(times);
 
-  for (i = 0; i < times.length; i++) {
-    var columnHeight = step * times[i];
+  for (var j = 0; j < times.length; j++) {
+    var columnHeight = step * times[j];
     var columnY = ctx.canvas.clientHeight - columnHeight - 60;
 
     ctx.fillStyle = '#000000';
-    ctx.fillText(times[i].toFixed(0), columnX + columnIndent * i, columnY - 15);
+    ctx.fillText(times[j].toFixed(0), columnX + columnIndent * j, columnY - 15);
 
-    if (names[i] === 'Вы') {
+    if (names[j] === 'Вы') {
       ctx.fillStyle = 'rgba(255, 0, 0, 1)';
     } else {
-      ctx.fillStyle = ['rgb(0, 0, ', (Math.random() * 255).toFixed(0), ')'].join('');
+      ctx.fillStyle = ['hsl(0, 0, ', (Math.random() * 255).toFixed(0), ')'].join('');
     }
 
-    ctx.fillRect(columnX + columnIndent * i, columnY, columnWidth, columnHeight);
+    ctx.fillRect(columnX + columnIndent * j, columnY, columnWidth, columnHeight);
     ctx.fillStyle = '#000000';
-    ctx.fillText(names[i], columnX + columnIndent * i, columnY + columnHeight + 5);
+    ctx.fillText(names[j], columnX + columnIndent * j, columnY + columnHeight + 5);
   }
 };
