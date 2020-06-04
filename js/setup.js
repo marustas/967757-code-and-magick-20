@@ -38,7 +38,7 @@ function generateWizards() {
 
   // Function, that returns new massive from the old in random order
   function shuffleArray(array) {
-    for (var j = array.length - 1; j > 0; i--) {
+    for (var j = array.length - 1; j > 0; j--) {
       var randomIndex = getRandomNumber(1, array.length - 1);
       var tempValue = array[j];
       array[j] = array[randomIndex];
