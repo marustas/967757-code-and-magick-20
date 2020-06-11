@@ -61,3 +61,4 @@ window.renderStatistics = function (ctx, names, times) {
     ctx.fillText(names[j], columnX + columnIndent * j, columnY + columnHeight + 5);
   }
 };
+
