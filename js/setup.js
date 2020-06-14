@@ -1,6 +1,5 @@
 'use strict';
 
-// Module3-task1
 var DATA_WIZARDS = {
   COUNT: 4,
   NAMES: ['Иван', 'Хуан Себастьян', 'Мария', 'Кристоф', 'Виктор', 'Юлия', 'Люпита', 'Вашингтон'],
@@ -10,13 +9,11 @@ var DATA_WIZARDS = {
   FIREBALL_COLOR: ['#ee4830', '#30a8ee', '#5ce6c0', '#e848d5', '#e6e848']
 };
 
-// Module4-task1
 var KEYCODE = {
   ENTER: 13,
   ESC: 27
 };
 
-// Module4-task1
 var userDialog = document.querySelector('.setup');
 var userDialogOpen = document.querySelector('.setup-open'); // кнопка открытия окна
 var userDialogClose = userDialog.querySelector('.setup-close'); // кнопка закрытия окна
@@ -27,12 +24,10 @@ var changeCoatColor = userDialog.querySelector('.wizard-coat');
 var changeEyesColor = userDialog.querySelector('.wizard-eyes');
 var changeFireballColor = userDialog.querySelector('.setup-fireball-wrap');
 
-// Module3-task1
 var setupSimilarWizards = document.querySelector('.setup-similar');
 var similarListElement = userDialog.querySelector('.setup-similar-list');
 var similarWizardTemplate = document.querySelector('#similar-wizard-template').content;
 
-// Module4-task1
 var getNextCoatColor = getIterator(DATA_WIZARDS.COAT_COLOR);
 var getNextEyeColor = getIterator(DATA_WIZARDS.EYES_COLOR);
 var getNextFireballColor = getIterator(DATA_WIZARDS.FIREBALL_COLOR);
@@ -135,7 +130,6 @@ function closeSettingsWizard() {
   }
 }
 
-// Module3-task1
 // Opens the window with similiar wizards
 function showSimilarWizards() {
   setupSimilarWizards.classList.remove('hidden');
