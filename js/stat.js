@@ -53,7 +53,10 @@ window.renderStatistics = function (ctx, names, times) {
     if (names[j] === 'Вы') {
       ctx.fillStyle = 'rgba(255, 0, 0, 1)';
     } else {
-      ctx.fillStyle = ['hsl(0, 0, ', (Math.random() * 255).toFixed(0), ')'].join('');
+      ctx.fillStyle = 'hsl(' + 360 * Math.random() + ',' +
+      (25 + 70 * Math.random()) + '%,' +
+      (85 + 10 * Math.random()) + '%)';
+
     }
 
     ctx.fillRect(columnX + columnIndent * j, columnY, columnWidth, columnHeight);
@@ -61,3 +64,4 @@ window.renderStatistics = function (ctx, names, times) {
     ctx.fillText(names[j], columnX + columnIndent * j, columnY + columnHeight + 5);
   }
 };
+
