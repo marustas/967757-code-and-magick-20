@@ -1,67 +1,72 @@
 'use strict';
 
-function getMaxValue(times) {
-  var maxTime = times[0];
+(function () {
 
-  for (var i = 1; i < times.length; i++) {
-    if (times[i] > maxTime) {
-      maxTime = times[i];
-    }
-  }
-  return maxTime;
-}
-window.renderStatistics = function (ctx, names, times) {
-  var drawBackground = function (x, y, width, height) {
-    var offset = 15;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.bezierCurveTo(x + offset, y + offset, x + width - offset, y + offset, x + width, y);
-    ctx.bezierCurveTo(x + width - offset, y + offset, x + width - offset, y + height - offset, x + width, y + height);
-    ctx.bezierCurveTo(x + width - offset, y + height - offset, x + offset, y + height - offset, x, y + height);
-    ctx.bezierCurveTo(x + offset, y + height - offset, x + offset, y + offset, x, y);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fill();
+  var renderCloud = function (ctx, x, y, color) {
+    var CLOUD_WIDTH = 420;
+    var CLOUD_HEIGHT = 270;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, CLOUD_WIDTH, CLOUD_HEIGHT);
   };
 
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-  drawBackground(110, 20, 420, 270);
-  ctx.fillStyle = 'white';
-  drawBackground(100, 10, 420, 270);
-
-  ctx.font = '16px PT Mono';
-  ctx.fillStyle = 'black';
-  ctx.textBaseline = 'hanging';
-  ctx.fillText('Ура вы победили!', 130, 30);
-  ctx.fillText('Список результатов:', 130, 50);
-
-  var columnMaxHeight = 150;
-  var columnX = 130;
-  var columnWidth = 40;
-  var columnIndent = 90;
-
-
-  var step = columnMaxHeight / getMaxValue(times);
-
-  for (var j = 0; j < times.length; j++) {
-    var columnHeight = step * times[j];
-    var columnY = ctx.canvas.clientHeight - columnHeight - 60;
-
-    ctx.fillStyle = '#000000';
-    ctx.fillText(times[j].toFixed(0), columnX + columnIndent * j, columnY - 15);
-
-    if (names[j] === 'Вы') {
-      ctx.fillStyle = 'rgba(255, 0, 0, 1)';
-    } else {
-      ctx.fillStyle = 'hsl(' + 360 * Math.random() + ',' +
-      (25 + 70 * Math.random()) + '%,' +
-      (85 + 10 * Math.random()) + '%)';
-
+  var getMaxElement = function (arr) {
+    var maxElement = arr[0];
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] > maxElement) {
+        maxElement = arr[i];
+      }
     }
+    return maxElement;
+  };
 
-    ctx.fillRect(columnX + columnIndent * j, columnY, columnWidth, columnHeight);
-    ctx.fillStyle = '#000000';
-    ctx.fillText(names[j], columnX + columnIndent * j, columnY + columnHeight + 5);
-  }
-};
+  var renderText = function (ctx, color, font, baseline, text, coordX, coordY) {
+    ctx.fillStyle = color;
+    ctx.font = font;
+    ctx.textBaseline = baseline;
+    ctx.fillText(text, coordX, coordY);
+  };
 
+  window.renderStatistics = function (ctx, names, times) {
+    var CLOUD_X = 100;
+    var CLOUD_Y = 10;
+    var CLOUD_GAP = 20;
+    var CLOUD_SHADOW_GAP = 10;
+    var GISTOGRAMMA_HEIGHT = 150;
+    var BAR_WIDTH = 40;
+    var BAR_GAP = 50;
+    var TEXT_HEIGHT = 25;
+    var TEXT_COLOR = '#000000';
+    var TEXT_FONT = '16px PT Mono';
+    var TEXT_BASELINE = 'hanging';
+    var BLUE_H = 255;
+    var BLUE_S = 100;
+    var BLUE_L = 50;
+    var COLOR_DEFAULT = 'rgba(255, 0, 0, 1)';
+    var barHeight = GISTOGRAMMA_HEIGHT - TEXT_HEIGHT * 2;
+    var textX = CLOUD_X + CLOUD_GAP;
+    var textY = CLOUD_Y + CLOUD_GAP;
+    var textY2 = CLOUD_Y + CLOUD_GAP + TEXT_HEIGHT;
+    var timeY = CLOUD_Y + BAR_GAP * 1.7;
+    var nameY = timeY + GISTOGRAMMA_HEIGHT;
+    var USER_NAME = 'Вы';
+    var maxTime = getMaxElement(times);
+
+    renderCloud(ctx, CLOUD_X + CLOUD_GAP, CLOUD_Y + CLOUD_SHADOW_GAP, 'rgba(0, 0, 0, 0.7)');
+    renderCloud(ctx, CLOUD_X, CLOUD_Y, '#fff');
+    renderText(ctx, TEXT_COLOR, TEXT_FONT, TEXT_BASELINE, 'Ура вы победили!', textX, textY);
+    renderText(ctx, TEXT_COLOR, TEXT_FONT, TEXT_BASELINE, 'Список результатов:', textX, textY2);
+
+    for (var i = 0; i < names.length; i++) {
+      var barX = CLOUD_X + CLOUD_GAP + (BAR_WIDTH + BAR_GAP) * i;
+      var barDynamicHeight = (barHeight * times[i]) / maxTime;
+      var barY = GISTOGRAMMA_HEIGHT - barDynamicHeight + timeY - TEXT_HEIGHT;
+      var colorRandom = 'hsl(' + BLUE_H + ',' + BLUE_S * Math.random() + '%,' + BLUE_L + '%)';
+      ctx.fillText(Math.floor(times[i]), barX, timeY);
+      ctx.fillStyle = (names[i] === USER_NAME) ? COLOR_DEFAULT : colorRandom;
+      ctx.fillRect(barX, barY, BAR_WIDTH, barDynamicHeight);
+      ctx.fillStyle = TEXT_COLOR;
+      ctx.fillText(names[i], barX, nameY);
+    }
+  };
+
+})();
