@@ -1,47 +1,64 @@
 'use strict';
 
 (function () {
+  var userDialog = document.querySelector('.setup');
 
-  var ESC_KEY = 'Escape';
-  var ENTER_KEY = 'Enter';
-  var setupOpen = document.querySelector('.setup-open');
-  var setup = document.querySelector('.setup');
-  var setupClose = setup.querySelector('.setup-close');
+  var moveButton = document.querySelector('.upload');
 
-  function documentKeydownHandler(evt) {
-    if (evt.key === ESC_KEY) {
-      window.util.hideElement(setup);
+  var moveButtonHandler = function (evt) {
+    evt.preventDefault();
+
+    var startCoords = {
+      x: evt.clientX,
+      y: evt.clientY,
+    };
+
+    var dragged = false;
+
+    var moveButtonMoveHandler = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      dragged = true;
+
+      var shiftCoords = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY,
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY,
+      };
+
+      userDialog.style.top = (userDialog.offsetTop - shiftCoords.y) + 'px';
+      userDialog.style.left = (userDialog.offsetLeft - shiftCoords.x) + 'px';
+    };
+
+    var moveButtonStopHandler = function (upEvt) {
+      upEvt.preventDefault();
+
+      document.removeEventListener('mousemove', moveButtonMoveHandler);
+      document.removeEventListener('mouseup', moveButtonStopHandler);
+
+      if (dragged) {
+        var clickPreventDefaultHandler = function (clickEvt) {
+          clickEvt.preventDefault();
+          moveButton.removeEventListener('click', clickPreventDefaultHandler);
+        };
+        moveButton.addEventListener('click', clickPreventDefaultHandler);
+      }
+    };
+
+    document.addEventListener('mousemove', moveButtonMoveHandler);
+    document.addEventListener('mouseup', moveButtonStopHandler);
+  };
+
+  moveButton.addEventListener('mousedown', moveButtonHandler);
+
+  window.dialog = {
+    userDialog: document.querySelector('.setup'),
+    getDefaultPosition: function () {
+      window.dialog.userDialog.style = '';
     }
-  }
-
-  function openbtnClickHandler() {
-    window.util.showElement(setup);
-    document.addEventListener('keydown', documentKeydownHandler);
-  }
-
-  function closebtnClickHandler() {
-    window.util.hideElement(setup);
-    document.removeEventListener('keydown', documentKeydownHandler);
-  }
-
-  function openbtnKeydownHandler(evt) {
-    if (evt.key === ENTER_KEY) {
-      window.util.showElement(setup);
-    }
-  }
-
-  function closebtnKeydownHandler(evt) {
-    if (evt.key === ENTER_KEY) {
-      window.util.hideElement(setup);
-    }
-  }
-
-  window.util.showElement(setup);
-
-  document.addEventListener('keydown', documentKeydownHandler);
-  setupOpen.addEventListener('click', openbtnClickHandler);
-  setupOpen.addEventListener('keydown', openbtnKeydownHandler);
-  setupClose.addEventListener('click', closebtnClickHandler);
-  setupClose.addEventListener('keydown', closebtnKeydownHandler);
-
+  };
 })();

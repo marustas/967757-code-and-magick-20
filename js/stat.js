@@ -1,16 +1,49 @@
 'use strict';
 
 (function () {
+  var CLOUD_WIDTH = 420;
+  var CLOUD_HEIGHT = 270;
+  var CLOUD_X = 100;
+  var CLOUD_Y = 10;
+  var GAP = 10;
+  var FONT_GAP = 20;
+  var COLUMN_GAP = 50;
+  var TEXT_HEIGHT = 40;
+  var BAR_HEIGHT = 150;
+  var BAR_WIDTH = 40;
+  var TEXT_STYLE = '16px PT Mono';
+  var TEXT_ALIGN = 'hanging';
+
+  var Color = {
+    RED: 'rgba(255, 0, 0, 1)',
+    BLACK: '#000',
+    WHITE: '#fff',
+    GREY: 'rgba(0, 0, 0, 0.7)'
+  };
+
+  var Message = {
+    WON: 'Ура, вы победили!',
+    RESULTS: 'Список результатов:'
+  };
+
+  var getRandom = function (min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  var getRandomColor = function () {
+    return 'hsl(240,' + getRandom(0, 100) + '%, 25%)';
+  };
 
   var renderCloud = function (ctx, x, y, color) {
-    var CLOUD_WIDTH = 420;
-    var CLOUD_HEIGHT = 270;
     ctx.fillStyle = color;
     ctx.fillRect(x, y, CLOUD_WIDTH, CLOUD_HEIGHT);
   };
 
   var getMaxElement = function (arr) {
     var maxElement = arr[0];
+
     for (var i = 0; i < arr.length; i++) {
       if (arr[i] > maxElement) {
         maxElement = arr[i];
@@ -19,54 +52,41 @@
     return maxElement;
   };
 
-  var renderText = function (ctx, color, font, baseline, text, coordX, coordY) {
-    ctx.fillStyle = color;
-    ctx.font = font;
-    ctx.textBaseline = baseline;
-    ctx.fillText(text, coordX, coordY);
+  var getPlayerColor = function (player) {
+    return player === 'Вы'
+      ? Color.RED
+      : getRandomColor();
   };
 
-  window.renderStatistics = function (ctx, names, times) {
-    var CLOUD_X = 100;
-    var CLOUD_Y = 10;
-    var CLOUD_GAP = 20;
-    var CLOUD_SHADOW_GAP = 10;
-    var GISTOGRAMMA_HEIGHT = 150;
-    var BAR_WIDTH = 40;
-    var BAR_GAP = 50;
-    var TEXT_HEIGHT = 25;
-    var TEXT_COLOR = '#000000';
-    var TEXT_FONT = '16px PT Mono';
-    var TEXT_BASELINE = 'hanging';
-    var BLUE_H = 255;
-    var BLUE_S = 100;
-    var BLUE_L = 50;
-    var COLOR_DEFAULT = 'rgba(255, 0, 0, 1)';
-    var barHeight = GISTOGRAMMA_HEIGHT - TEXT_HEIGHT * 2;
-    var textX = CLOUD_X + CLOUD_GAP;
-    var textY = CLOUD_Y + CLOUD_GAP;
-    var textY2 = CLOUD_Y + CLOUD_GAP + TEXT_HEIGHT;
-    var timeY = CLOUD_Y + BAR_GAP * 1.7;
-    var nameY = timeY + GISTOGRAMMA_HEIGHT;
-    var USER_NAME = 'Вы';
+  var renderPlayerScore = function (player, time, idx, maxTime, ctx) {
+    ctx.fillText(player, CLOUD_X + COLUMN_GAP + (COLUMN_GAP + BAR_WIDTH) * idx, CLOUD_Y + CLOUD_HEIGHT - FONT_GAP - GAP);
+
+    ctx.fillText(Math.round(time),
+        CLOUD_X + COLUMN_GAP + (COLUMN_GAP + BAR_WIDTH) * idx,
+        CLOUD_Y + CLOUD_HEIGHT - FONT_GAP - GAP - TEXT_HEIGHT - (BAR_HEIGHT * time) / maxTime + GAP);
+
+    ctx.fillStyle = getPlayerColor(player);
+
+    ctx.fillRect(CLOUD_X + COLUMN_GAP + (COLUMN_GAP + BAR_WIDTH) * idx, CLOUD_Y + CLOUD_HEIGHT - TEXT_HEIGHT, BAR_WIDTH, (-BAR_HEIGHT * time) / maxTime);
+  };
+
+  window.renderStatistics = function (ctx, players, times) {
+    renderCloud(ctx, CLOUD_X + GAP, CLOUD_Y + GAP, Color.GREY);
+    renderCloud(ctx, CLOUD_X, CLOUD_Y, Color.WHITE);
+
+    ctx.fillStyle = Color.BLACK;
+
+    ctx.font = TEXT_STYLE;
+    ctx.textBaseline = TEXT_ALIGN;
+
+    ctx.fillText(Message.WON, CLOUD_X + FONT_GAP, CLOUD_Y + GAP);
+    ctx.fillText(Message.RESULTS, CLOUD_X + FONT_GAP, CLOUD_Y + GAP + FONT_GAP);
+
     var maxTime = getMaxElement(times);
 
-    renderCloud(ctx, CLOUD_X + CLOUD_GAP, CLOUD_Y + CLOUD_SHADOW_GAP, 'rgba(0, 0, 0, 0.7)');
-    renderCloud(ctx, CLOUD_X, CLOUD_Y, '#fff');
-    renderText(ctx, TEXT_COLOR, TEXT_FONT, TEXT_BASELINE, 'Ура вы победили!', textX, textY);
-    renderText(ctx, TEXT_COLOR, TEXT_FONT, TEXT_BASELINE, 'Список результатов:', textX, textY2);
-
-    for (var i = 0; i < names.length; i++) {
-      var barX = CLOUD_X + CLOUD_GAP + (BAR_WIDTH + BAR_GAP) * i;
-      var barDynamicHeight = (barHeight * times[i]) / maxTime;
-      var barY = GISTOGRAMMA_HEIGHT - barDynamicHeight + timeY - TEXT_HEIGHT;
-      var colorRandom = 'hsl(' + BLUE_H + ',' + BLUE_S * Math.random() + '%,' + BLUE_L + '%)';
-      ctx.fillText(Math.floor(times[i]), barX, timeY);
-      ctx.fillStyle = (names[i] === USER_NAME) ? COLOR_DEFAULT : colorRandom;
-      ctx.fillRect(barX, barY, BAR_WIDTH, barDynamicHeight);
-      ctx.fillStyle = TEXT_COLOR;
-      ctx.fillText(names[i], barX, nameY);
+    for (var i = 0; i < players.length; i++) {
+      renderPlayerScore(players[i], times[i], i, maxTime, ctx);
+      ctx.fillStyle = Color.BLACK;
     }
   };
-
 })();
