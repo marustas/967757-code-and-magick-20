@@ -1,64 +1,62 @@
 'use strict';
 
 (function () {
-  var userDialog = document.querySelector('.setup');
+  var setup = document.querySelector('.setup');
+  var setupOpen = document.querySelector('.setup-open');
+  var setupClose = setup.querySelector('.setup-close');
+  var userNameInput = document.querySelector('.setup-user-name');
+  var setupTopDefault;
+  var setupLeftDefault;
+  var isOpenPopup = false;
 
-  var moveButton = document.querySelector('.upload');
-
-  var moveButtonHandler = function (evt) {
-    evt.preventDefault();
-
-    var startCoords = {
-      x: evt.clientX,
-      y: evt.clientY,
-    };
-
-    var dragged = false;
-
-    var moveButtonMoveHandler = function (moveEvt) {
-      moveEvt.preventDefault();
-
-      dragged = true;
-
-      var shiftCoords = {
-        x: startCoords.x - moveEvt.clientX,
-        y: startCoords.y - moveEvt.clientY,
-      };
-
-      startCoords = {
-        x: moveEvt.clientX,
-        y: moveEvt.clientY,
-      };
-
-      userDialog.style.top = (userDialog.offsetTop - shiftCoords.y) + 'px';
-      userDialog.style.left = (userDialog.offsetLeft - shiftCoords.x) + 'px';
-    };
-
-    var moveButtonStopHandler = function (upEvt) {
-      upEvt.preventDefault();
-
-      document.removeEventListener('mousemove', moveButtonMoveHandler);
-      document.removeEventListener('mouseup', moveButtonStopHandler);
-
-      if (dragged) {
-        var clickPreventDefaultHandler = function (clickEvt) {
-          clickEvt.preventDefault();
-          moveButton.removeEventListener('click', clickPreventDefaultHandler);
-        };
-        moveButton.addEventListener('click', clickPreventDefaultHandler);
-      }
-    };
-
-    document.addEventListener('mousemove', moveButtonMoveHandler);
-    document.addEventListener('mouseup', moveButtonStopHandler);
+  var popupEscPressHandler = function (evt) {
+    if (evt.key === 'Escape' && document.activeElement !== userNameInput) {
+      evt.preventDefault();
+      closePopup();
+    }
   };
 
-  moveButton.addEventListener('mousedown', moveButtonHandler);
+  var openPopup = function () {
+    setup.classList.remove('hidden');
+
+    if (!isOpenPopup) {
+      setupTopDefault = setup.offsetTop;
+      setupLeftDefault = setup.offsetLeft;
+    }
+
+    document.addEventListener('keydown', popupEscPressHandler);
+    isOpenPopup = true;
+  };
+
+  var closePopup = function () {
+    setup.classList.add('hidden');
+    setup.style.top = setupTopDefault + 'px';
+    setup.style.left = setupLeftDefault + 'px';
+    isOpenPopup = false;
+    document.removeEventListener('keydown', popupEscPressHandler);
+  };
+
+  setupOpen.addEventListener('click', function () {
+    openPopup();
+  });
+
+  setupOpen.addEventListener('keydown', function (evt) {
+    if (evt.key === 'Enter') {
+      openPopup();
+    }
+  });
+
+  setupClose.addEventListener('click', function () {
+    closePopup();
+  });
+
+  setupClose.addEventListener('keydown', function (evt) {
+    if (evt.key === 'Enter') {
+      closePopup();
+    }
+  });
 
   window.dialog = {
-    userDialog: document.querySelector('.setup'),
-    getDefaultPosition: function () {
-      window.dialog.userDialog.style = '';
-    }
+    closePopup: closePopup
   };
 })();
