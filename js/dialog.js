@@ -1,62 +1,54 @@
 'use strict';
 
 (function () {
-  var setup = document.querySelector('.setup');
-  var setupOpen = document.querySelector('.setup-open');
-  var setupClose = setup.querySelector('.setup-close');
-  var userNameInput = document.querySelector('.setup-user-name');
-  var setupTopDefault;
-  var setupLeftDefault;
-  var isOpenPopup = false;
+  var setupElement = window.setup.setupElement;
+  var dialogHandlerElement = setupElement.querySelector('.upload');
 
-  var popupEscPressHandler = function (evt) {
-    if (evt.key === 'Escape' && document.activeElement !== userNameInput) {
-      evt.preventDefault();
-      closePopup();
-    }
-  };
+  dialogHandlerElement.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
 
-  var openPopup = function () {
-    setup.classList.remove('hidden');
+    var startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
 
-    if (!isOpenPopup) {
-      setupTopDefault = setup.offsetTop;
-      setupLeftDefault = setup.offsetLeft;
-    }
+    var isDragged = false;
 
-    document.addEventListener('keydown', popupEscPressHandler);
-    isOpenPopup = true;
-  };
+    var mouseMoveHandler = function (moveEvt) {
+      moveEvt.preventDefault();
 
-  var closePopup = function () {
-    setup.classList.add('hidden');
-    setup.style.top = setupTopDefault + 'px';
-    setup.style.left = setupLeftDefault + 'px';
-    isOpenPopup = false;
-    document.removeEventListener('keydown', popupEscPressHandler);
-  };
+      isDragged = true;
 
-  setupOpen.addEventListener('click', function () {
-    openPopup();
+      var shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
+      };
+
+      setupElement.style.top = (setupElement.offsetTop - shift.y) + 'px';
+      setupElement.style.left = (setupElement.offsetLeft - shift.x) + 'px';
+    };
+
+    var mouseUpHandler = function (upEvt) {
+      upEvt.preventDefault();
+
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
+
+      if (isDragged) {
+        var clickPreventDefaultHandler = function (clickEvt) {
+          clickEvt.preventDefault();
+          dialogHandlerElement.removeEventListener('click', clickPreventDefaultHandler);
+        };
+        dialogHandlerElement.addEventListener('click', clickPreventDefaultHandler);
+      }
+    };
+
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseup', mouseUpHandler);
   });
-
-  setupOpen.addEventListener('keydown', function (evt) {
-    if (evt.key === 'Enter') {
-      openPopup();
-    }
-  });
-
-  setupClose.addEventListener('click', function () {
-    closePopup();
-  });
-
-  setupClose.addEventListener('keydown', function (evt) {
-    if (evt.key === 'Enter') {
-      closePopup();
-    }
-  });
-
-  window.dialog = {
-    closePopup: closePopup
-  };
 })();
